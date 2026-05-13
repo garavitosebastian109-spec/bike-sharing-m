@@ -64,12 +64,15 @@ header p{color:var(--muted);font-size:0.83rem;margin-top:3px}
 <body>
 <header>
   <div>
-    <h1>Bike Sharing Predictor</h1>
+    <h1>&#x1F6B2; Bike Sharing Predictor</h1>
     <p>UCI Dataset - Demanda diaria de bicicletas compartidas</p>
   </div>
   <span class="badge" id="st">Cargando...</span>
 </header>
-<div id="loading"><div class="spin"></div><p style="color:var(--muted)">Cargando modelos...</p></div>
+<div id="loading">
+  <div class="spin"></div>
+  <p style="color:var(--muted)">Cargando modelos...</p>
+</div>
 <div id="app">
   <div class="tabs">
     <button class="tbtn on" onclick="sw('ind',this)">Prediccion Individual</button>
@@ -77,124 +80,265 @@ header p{color:var(--muted);font-size:0.83rem;margin-top:3px}
     <button class="tbtn" onclick="sw('cmp',this)">Comparar Modelos</button>
   </div>
   <div id="tab-ind" class="tp on">
-    <div class="card"><h2>Seleccionar Modelo</h2>
+    <div class="card">
+      <h2>Seleccionar Modelo</h2>
       <div class="ms">
-        <div class="mo on" id="o-lr" onclick="sm('lr')"><div class="mn">Regresion Logistica</div><div class="md">Lineal, rapido, interpretable</div></div>
-        <div class="mo" id="o-nn" onclick="sm('nn')"><div class="mn">Red Neuronal MLP</div><div class="md">64-32 neuronas, ReLU, Adam</div></div>
+        <div class="mo on" id="o-lr" onclick="sm('lr')">
+          <div class="mn">Regresion Logistica</div>
+          <div class="md">Lineal, rapido, interpretable</div>
+        </div>
+        <div class="mo" id="o-nn" onclick="sm('nn')">
+          <div class="mn">Red Neuronal MLP</div>
+          <div class="md">64-32 neuronas, ReLU, Adam</div>
+        </div>
       </div>
     </div>
-    <div class="card"><h2>Ingresar Variables</h2><div class="fg" id="fg"></div><button class="btn" onclick="pred()">Predecir Demanda</button></div>
-    <div id="rb"><div class="rl" id="rl"></div><div class="rp" id="rp"></div><div class="pbw"><div class="pb" id="pb"></div></div></div>
+    <div class="card">
+      <h2>Ingresar Variables</h2>
+      <div class="fg" id="fg"></div>
+      <button class="btn" onclick="pred()">Predecir Demanda</button>
+    </div>
+    <div id="rb">
+      <div class="rl" id="rl"></div>
+      <div class="rp" id="rp"></div>
+      <div class="pbw"><div class="pb" id="pb"></div></div>
+    </div>
   </div>
   <div id="tab-bat" class="tp">
-    <div class="card"><h2>Seleccionar Modelo</h2>
+    <div class="card">
+      <h2>Seleccionar Modelo</h2>
       <div class="ms">
         <div class="mo on" id="b-lr" onclick="sbm('lr')"><div class="mn">Regresion Logistica</div></div>
         <div class="mo" id="b-nn" onclick="sbm('nn')"><div class="mn">Red Neuronal MLP</div></div>
       </div>
     </div>
-    <div class="card"><h2>Cargar Dataset</h2>
+    <div class="card">
+      <h2>Cargar Dataset</h2>
       <p style="color:var(--muted);font-size:.81rem;margin-bottom:13px">Sube day.csv del UCI Bike Sharing, o usa el conjunto de prueba precargado.</p>
-      <label class="uz" for="ci"><input type="file" id="ci" accept=".csv" onchange="hcsv(event)"><div>Sube tu CSV aqui</div></label>
+      <label class="uz" for="ci">
+        <input type="file" id="ci" accept=".csv" onchange="hcsv(event)">
+        <div>&#128193; Sube tu CSV aqui</div>
+      </label>
       <button class="btn btn2" onclick="rbt()">Usar datos de prueba</button>
     </div>
     <div id="br2">
       <div class="card"><h2>Metricas de Desempeno</h2><div class="mg" id="bm"></div></div>
-      <div class="card"><h2>Matriz de Confusion</h2><p style="color:var(--muted);font-size:.76rem;margin-bottom:11px">Filas = Clase Real | Columnas = Clase Predicha</p><table class="ct" id="ctbl"></table></div>
+      <div class="card">
+        <h2>Matriz de Confusion</h2>
+        <p style="color:var(--muted);font-size:.76rem;margin-bottom:11px">Filas = Clase Real | Columnas = Clase Predicha</p>
+        <table class="ct" id="ctbl"></table>
+      </div>
     </div>
   </div>
   <div id="tab-cmp" class="tp">
-    <div class="card"><h2>Comparacion - Conjunto de Prueba (20%)</h2>
+    <div class="card">
+      <h2>Comparacion - Conjunto de Prueba (20%)</h2>
       <p style="color:var(--muted);font-size:.81rem;margin-bottom:16px">Verde = mejor modelo en esa metrica.</p>
       <table class="cpt" id="ctab"></table>
     </div>
   </div>
 </div>
 <script>
-var D=null,sM='lr',bM='lr';
-fetch('models.json').then(function(r){return r.json();}).then(function(d){
-  D=d;
-  document.getElementById('loading').style.display='none';
-  document.getElementById('app').style.display='block';
-  document.getElementById('st').textContent='Modelos listos';
-  bF();bCT();
-}).catch(function(e){
-  document.getElementById('loading').innerHTML='<p style="color:red">Error cargando modelos: '+e.message+'</p>';
-});
-function sw(t,b){document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tbtn').forEach(function(x){x.classList.remove('on');});document.getElementById('tab-'+t).classList.add('on');b.classList.add('on');}
-function sm(m){sM=m;document.getElementById('o-lr').classList.toggle('on',m==='lr');document.getElementById('o-nn').classList.toggle('on',m==='nn');document.getElementById('rb').style.display='none';}
-function sbm(m){bM=m;document.getElementById('b-lr').classList.toggle('on',m==='lr');document.getElementById('b-nn').classList.toggle('on',m==='nn');document.getElementById('br2').style.display='none';}
-function bF(){
-  var g=document.getElementById('fg');
-  var dv={season:3,yr:0,mnth:6,holiday:0,weekday:3,workingday:1,weathersit:1,temp:0.5,atemp:0.5,hum:0.5,windspeed:0.2};
-  var sl={season:[[1,'Primavera'],[2,'Verano'],[3,'Otono'],[4,'Invierno']],yr:[[0,'2011'],[1,'2012']],holiday:[[0,'No'],[1,'Si']],workingday:[[0,'No'],[1,'Si']],weathersit:[[1,'Despejado'],[2,'Nublado'],[3,'Lluvia ligera'],[4,'Lluvia fuerte']],weekday:[[0,'Dom'],[1,'Lun'],[2,'Mar'],[3,'Mie'],[4,'Jue'],[5,'Vie'],[6,'Sab']]};
-  D.features.forEach(function(f){
-    var d=document.createElement('div');d.className='ff';
-    if(sl[f]){
-      var o=sl[f].map(function(x){return '<option value="'+x[0]+'"'+(x[0]==dv[f]?' selected':'')+'>'+x[1]+'</option>';}).join('');
-      d.innerHTML='<label>'+D.feature_labels[f]+'</label><select id="f_'+f+'">'+o+'</select>';
+var D = null, sM = 'lr', bM = 'lr';
+
+fetch('models.json')
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    D = d;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('st').textContent = 'Modelos listos';
+    buildForm();
+    buildCompareTable();
+  })
+  .catch(function(e) {
+    document.getElementById('loading').innerHTML = '<p style="color:red">Error: ' + e.message + '</p>';
+  });
+
+function sw(t, b) {
+  document.querySelectorAll('.tp').forEach(function(p) { p.classList.remove('on'); });
+  document.querySelectorAll('.tbtn').forEach(function(x) { x.classList.remove('on'); });
+  document.getElementById('tab-' + t).classList.add('on');
+  b.classList.add('on');
+}
+
+function sm(m) {
+  sM = m;
+  document.getElementById('o-lr').classList.toggle('on', m === 'lr');
+  document.getElementById('o-nn').classList.toggle('on', m === 'nn');
+  document.getElementById('rb').style.display = 'none';
+}
+
+function sbm(m) {
+  bM = m;
+  document.getElementById('b-lr').classList.toggle('on', m === 'lr');
+  document.getElementById('b-nn').classList.toggle('on', m === 'nn');
+  document.getElementById('br2').style.display = 'none';
+}
+
+function buildForm() {
+  var g = document.getElementById('fg');
+  var dv = {season:3,yr:0,mnth:6,holiday:0,weekday:3,workingday:1,weathersit:1,temp:0.5,atemp:0.5,hum:0.5,windspeed:0.2};
+  var sl = {
+    season:     [[1,'Primavera'],[2,'Verano'],[3,'Otono'],[4,'Invierno']],
+    yr:         [[0,'2011'],[1,'2012']],
+    holiday:    [[0,'No'],[1,'Si']],
+    workingday: [[0,'No'],[1,'Si']],
+    weathersit: [[1,'Despejado'],[2,'Nublado'],[3,'Lluvia ligera'],[4,'Lluvia fuerte']],
+    weekday:    [[0,'Dom'],[1,'Lun'],[2,'Mar'],[3,'Mie'],[4,'Jue'],[5,'Vie'],[6,'Sab']]
+  };
+  D.features.forEach(function(f) {
+    var d = document.createElement('div');
+    d.className = 'ff';
+    if (sl[f]) {
+      var o = sl[f].map(function(x) {
+        return '<option value="' + x[0] + '"' + (x[0] == dv[f] ? ' selected' : '') + '>' + x[1] + '</option>';
+      }).join('');
+      d.innerHTML = '<label>' + D.feature_labels[f] + '</label><select id="f_' + f + '">' + o + '</select>';
     } else {
-      var st=['temp','atemp','hum','windspeed'].indexOf(f)>=0?'0.01':'1';
-      var mn=f==='mnth'?1:0;var mx=f==='mnth'?12:1;
-      d.innerHTML='<label>'+D.feature_labels[f]+'</label><input type="number" id="f_'+f+'" value="'+dv[f]+'" min="'+mn+'" max="'+mx+'" step="'+st+'">';
+      var step = ['temp','atemp','hum','windspeed'].indexOf(f) >= 0 ? '0.01' : '1';
+      var mn = f === 'mnth' ? 1 : 0;
+      var mx = f === 'mnth' ? 12 : 1;
+      d.innerHTML = '<label>' + D.feature_labels[f] + '</label><input type="number" id="f_' + f + '" value="' + dv[f] + '" min="' + mn + '" max="' + mx + '" step="' + step + '">';
     }
     g.appendChild(d);
   });
 }
-function sig(x){return 1/(1+Math.exp(-x));}
-function relu(a){return a.map(function(v){return Math.max(0,v);});}
-function sc(v){return v.map(function(x,i){return (x-D.scaler.mean[i])/D.scaler.scale[i];});}
-function pLR(s){var l=D.lr_model.intercept;D.lr_model.coef.forEach(function(c,i){l+=c*s[i];});var p=sig(l);return {lbl:p>=0.5?1:0,p1:p};}
-function pNN(s){
-  var x=s.slice();
-  D.nn_model.layers.forEach(function(ly,i){
-    var o=ly.biases.map(function(b,j){var t=b;x.forEach(function(v,k){t+=v*ly.weights[k][j];});return t;});
-    x=i<D.nn_model.layers.length-1?relu(o):o.map(sig);
+
+function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+function relu(a) { return a.map(function(v) { return Math.max(0, v); }); }
+function scale(v) { return v.map(function(x, i) { return (x - D.scaler.mean[i]) / D.scaler.scale[i]; }); }
+
+function predLR(s) {
+  var l = D.lr_model.intercept;
+  D.lr_model.coef.forEach(function(c, i) { l += c * s[i]; });
+  var p = sigmoid(l);
+  return { lbl: p >= 0.5 ? 1 : 0, p1: p };
+}
+
+function predNN(s) {
+  var x = s.slice();
+  D.nn_model.layers.forEach(function(ly, i) {
+    var o = ly.biases.map(function(b, j) {
+      var t = b;
+      x.forEach(function(v, k) { t += v * ly.weights[k][j]; });
+      return t;
+    });
+    x = i < D.nn_model.layers.length - 1 ? relu(o) : o.map(sigmoid);
   });
-  return {lbl:x[0]>=0.5?1:0,p1:x[0]};
+  return { lbl: x[0] >= 0.5 ? 1 : 0, p1: x[0] };
 }
-function inf(raw,m){var s=sc(raw);return m==='lr'?pLR(s):pNN(s);}
-function pred(){
-  var raw=D.features.map(function(f){return parseFloat(document.getElementById('f_'+f).value);});
-  var res=inf(raw,sM);
-  var rb=document.getElementById('rb');rb.style.display='block';rb.className=res.lbl===1?'hi':'lo';
-  document.getElementById('rl').textContent=res.lbl===1?'Alta Demanda':'Baja Demanda';
-  var pct=(res.p1*100).toFixed(1);
-  document.getElementById('rp').textContent='P(alta demanda)='+pct+'% | '+(sM==='lr'?'Regresion Logistica':'Red Neuronal');
-  document.getElementById('pb').style.width=pct+'%';
-  document.getElementById('pb').style.background=res.lbl===1?'var(--accent)':'var(--danger)';
+
+function infer(raw, m) {
+  var s = scale(raw);
+  return m === 'lr' ? predLR(s) : predNN(s);
 }
-function rBatch(rows,lbls){
-  var tp=0,fp=0,fn=0,tn=0,pr=[];
-  rows.forEach(function(r,i){var res=inf(r,bM);pr.push(res.p1);var t=lbls[i];if(res.lbl===1&&t===1)tp++;else if(res.lbl===1&&t===0)fp++;else if(res.lbl===0&&t===1)fn++;else tn++;});
-  var n=rows.length,ac=(tp+tn)/n,pc=tp/(tp+fp)||0,rc=tp/(tp+fn)||0,f1=2*pc*rc/(pc+rc)||0;
-  var so=lbls.map(function(t,i){return {t:t,p:pr[i]};}).sort(function(a,b){return b.p-a.p;});
-  var auc=0,pf=0,pt=0,P=lbls.filter(function(v){return v;}).length,N=n-P,t2=0,f2=0;
-  so.forEach(function(x){if(x.t)t2++;else f2++;var tr=t2/P,fr=f2/N;auc+=(fr-pf)*((tr+pt)/2);pf=fr;pt=tr;});
-  sB({tp:tp,fp:fp,fn:fn,tn:tn},{ac:ac,pc:pc,rc:rc,f1:f1,auc:auc},n);
+
+function pred() {
+  var raw = D.features.map(function(f) { return parseFloat(document.getElementById('f_' + f).value); });
+  var res = infer(raw, sM);
+  var rb = document.getElementById('rb');
+  rb.style.display = 'block';
+  rb.className = res.lbl === 1 ? 'hi' : 'lo';
+  document.getElementById('rl').textContent = res.lbl === 1 ? 'Alta Demanda' : 'Baja Demanda';
+  var pct = (res.p1 * 100).toFixed(1);
+  document.getElementById('rp').textContent = 'P(alta demanda) = ' + pct + '% | Modelo: ' + (sM === 'lr' ? 'Regresion Logistica' : 'Red Neuronal');
+  document.getElementById('pb').style.width = pct + '%';
+  document.getElementById('pb').style.background = res.lbl === 1 ? 'var(--accent)' : 'var(--danger)';
 }
-function rbt(){var rows=D.test_data.map(function(d){return D.features.map(function(f){return d[f];});});var lbls=D.test_data.map(function(d){return d.true_label;});rBatch(rows,lbls);}
-function hcsv(e){
-  var file=e.target.files[0];if(!file)return;
-  var r=new FileReader();
-  r.onload=function(ev){
-    var lines=ev.target.result.trim().split('
-');var hdr=lines[0].split(',').map(function(h){return h.trim();});
-    var rows=[],lbls=[];
-    for(var i=1;i<lines.length;i++){var vs=lines[i].split(',').map(function(v){return parseFloat(v.trim());});var o={};hdr.forEach(function(h,j){o[h]=vs[j];});if(isNaN(o.cnt))continue;rows.push(D.features.map(function(f){return o[f]||0;}));lbls.push(o.cnt>D.mediana_cnt?1:0);}
-    if(!rows.length){alert('Sin filas validas');return;}rBatch(rows,lbls);
-  };r.readAsText(file);
+
+function runBatch(rows, lbls) {
+  var tp = 0, fp = 0, fn = 0, tn = 0, pr = [];
+  rows.forEach(function(r, i) {
+    var res = infer(r, bM);
+    pr.push(res.p1);
+    var t = lbls[i];
+    if (res.lbl === 1 && t === 1) tp++;
+    else if (res.lbl === 1 && t === 0) fp++;
+    else if (res.lbl === 0 && t === 1) fn++;
+    else tn++;
+  });
+  var n = rows.length;
+  var ac = (tp + tn) / n;
+  var pc = tp / (tp + fp) || 0;
+  var rc = tp / (tp + fn) || 0;
+  var f1 = 2 * pc * rc / (pc + rc) || 0;
+  var so = lbls.map(function(t, i) { return { t: t, p: pr[i] }; }).sort(function(a, b) { return b.p - a.p; });
+  var auc = 0, pf = 0, pt = 0;
+  var P = lbls.filter(function(v) { return v; }).length;
+  var N = n - P, t2 = 0, f2 = 0;
+  so.forEach(function(x) {
+    if (x.t) t2++; else f2++;
+    var tr = t2 / P, fr = f2 / N;
+    auc += (fr - pf) * ((tr + pt) / 2);
+    pf = fr; pt = tr;
+  });
+  showBatch({ tp:tp, fp:fp, fn:fn, tn:tn }, { ac:ac, pc:pc, rc:rc, f1:f1, auc:auc }, n);
 }
-function sB(cm,m,n){
-  var br=document.getElementById('br2');br.style.display='block';
-  document.getElementById('bm').innerHTML=[['Accuracy',(m.ac*100).toFixed(1)+'%'],['Precision',(m.pc*100).toFixed(1)+'%'],['Recall',(m.rc*100).toFixed(1)+'%'],['F1-Score',(m.f1*100).toFixed(1)+'%'],['ROC-AUC',m.auc.toFixed(4)]].map(function(x){return '<div class="mc"><div class="mv">'+x[1]+'</div><div class="ml">'+x[0]+'</div></div>';}).join('');
-  document.getElementById('ctbl').innerHTML='<tr><th></th><th>Pred Baja</th><th>Pred Alta</th></tr><tr><td class="rl2">Real: Baja</td><td class="vn"><b>'+cm.tn+'</b><br>VN</td><td class="fp2"><b>'+cm.fp+'</b><br>FP</td></tr><tr><td class="rl2">Real: Alta</td><td class="fn2"><b>'+cm.fn+'</b><br>FN</td><td class="vp"><b>'+cm.tp+'</b><br>VP</td></tr>';
-  br.scrollIntoView({behavior:'smooth',block:'start'});
+
+function rbt() {
+  var rows = D.test_data.map(function(d) { return D.features.map(function(f) { return d[f]; }); });
+  var lbls = D.test_data.map(function(d) { return d.true_label; });
+  runBatch(rows, lbls);
 }
-function bCT(){
-  var lr=D.lr_metrics,nn=D.nn_metrics;
-  var rows=[['Accuracy',lr.accuracy,nn.accuracy],['Precision',lr.precision,nn.precision],['Recall',lr.recall,nn.recall],['F1-Score',lr.f1,nn.f1],['ROC-AUC',lr.roc_auc,nn.roc_auc]];
-  document.getElementById('ctab').innerHTML='<thead><tr><th>Metrica</th><th>Regresion Logistica</th><th>Red Neuronal</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td style="color:var(--text);font-weight:500">'+r[0]+'</td><td class="'+(r[1]>=r[2]?'btr':'')+'">'+(r[1]*100).toFixed(2)+'%</td><td class="'+(r[2]>r[1]?'btr':'')+'">'+(r[2]*100).toFixed(2)+'%</td></tr>';}).join('')+'</tbody>';
+
+function hcsv(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function(ev) {
+    var lines = ev.target.result.trim().split('\n');
+    var hdr = lines[0].split(',').map(function(h) { return h.trim(); });
+    var rows = [], lbls = [];
+    for (var i = 1; i < lines.length; i++) {
+      var vs = lines[i].split(',').map(function(v) { return parseFloat(v.trim()); });
+      var o = {};
+      hdr.forEach(function(h, j) { o[h] = vs[j]; });
+      if (isNaN(o.cnt)) continue;
+      rows.push(D.features.map(function(f) { return o[f] || 0; }));
+      lbls.push(o.cnt > D.mediana_cnt ? 1 : 0);
+    }
+    if (!rows.length) { alert('Sin filas validas'); return; }
+    runBatch(rows, lbls);
+  };
+  r.readAsText(file);
+}
+
+function showBatch(cm, m, n) {
+  var br = document.getElementById('br2');
+  br.style.display = 'block';
+  document.getElementById('bm').innerHTML = [
+    ['Accuracy',  (m.ac * 100).toFixed(1) + '%'],
+    ['Precision', (m.pc * 100).toFixed(1) + '%'],
+    ['Recall',    (m.rc * 100).toFixed(1) + '%'],
+    ['F1-Score',  (m.f1 * 100).toFixed(1) + '%'],
+    ['ROC-AUC',   m.auc.toFixed(4)]
+  ].map(function(x) {
+    return '<div class="mc"><div class="mv">' + x[1] + '</div><div class="ml">' + x[0] + '</div></div>';
+  }).join('');
+  document.getElementById('ctbl').innerHTML =
+    '<tr><th></th><th>Pred Baja</th><th>Pred Alta</th></tr>' +
+    '<tr><td class="rl2">Real: Baja</td><td class="vn"><b>' + cm.tn + '</b><br>VN</td><td class="fp2"><b>' + cm.fp + '</b><br>FP</td></tr>' +
+    '<tr><td class="rl2">Real: Alta</td><td class="fn2"><b>' + cm.fn + '</b><br>FN</td><td class="vp"><b>' + cm.tp + '</b><br>VP</td></tr>';
+  br.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildCompareTable() {
+  var lr = D.lr_metrics, nn = D.nn_metrics;
+  var rows = [
+    ['Accuracy',  lr.accuracy,  nn.accuracy],
+    ['Precision', lr.precision, nn.precision],
+    ['Recall',    lr.recall,    nn.recall],
+    ['F1-Score',  lr.f1,        nn.f1],
+    ['ROC-AUC',   lr.roc_auc,   nn.roc_auc]
+  ];
+  document.getElementById('ctab').innerHTML =
+    '<thead><tr><th>Metrica</th><th>Regresion Logistica</th><th>Red Neuronal</th></tr></thead><tbody>' +
+    rows.map(function(r) {
+      return '<tr><td style="color:var(--text);font-weight:500">' + r[0] + '</td>' +
+        '<td class="' + (r[1] >= r[2] ? 'btr' : '') + '">' + (r[1] * 100).toFixed(2) + '%</td>' +
+        '<td class="' + (r[2] > r[1] ? 'btr' : '') + '">' + (r[2] * 100).toFixed(2) + '%</td></tr>';
+    }).join('') + '</tbody>';
 }
 </script>
 </body>
