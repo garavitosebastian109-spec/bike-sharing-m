@@ -4,192 +4,197 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Bike Sharing - Prediccion ML</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d0f14;--surface:#161921;--border:#252a36;--accent:#00e5a0;--accent2:#4f8aff;--danger:#ff5c6b;--text:#e8eaf0;--muted:#7a8099;--r:12px}
+:root{--bg:#0d0f14;--surface:#161921;--border:#252a36;--accent:#00e5a0;--accent2:#4f8aff;--danger:#ff5c6b;--text:#e8eaf0;--muted:#7a8099}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-header{background:linear-gradient(135deg,#0d1a2a,#0d1f1a);border-bottom:1px solid var(--border);padding:22px 36px;display:flex;align-items:center;gap:14px}
-header h1{font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--accent)}
+body{font-family:sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:#0d1a2a;border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;gap:14px}
+header h1{font-size:1.3rem;color:var(--accent);font-weight:700}
 header p{color:var(--muted);font-size:0.83rem;margin-top:3px}
-.badge{margin-left:auto;background:rgba(0,229,160,.1);border:1px solid var(--accent);color:var(--accent);padding:4px 13px;border-radius:999px;font-size:.73rem;font-family:'Space Mono',monospace}
+.badge{margin-left:auto;background:rgba(0,229,160,.1);border:1px solid var(--accent);color:var(--accent);padding:4px 13px;border-radius:999px;font-size:.73rem}
 #loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:18px}
 .spin{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #app{display:none;max-width:1060px;margin:0 auto;padding:32px 18px}
 .tabs{display:flex;gap:4px;margin-bottom:26px;border-bottom:1px solid var(--border)}
-.tbtn{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.tbtn{background:none;border:none;color:var(--muted);font-size:.9rem;font-weight:500;padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tbtn.on{color:var(--accent);border-bottom-color:var(--accent)}
-.tp{display:none}.tp.on{display:block;animation:fi .3s ease}
-@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px}
-.card h2{font-family:'Space Mono',monospace;font-size:.9rem;color:var(--accent2);margin-bottom:16px}
+.tp{display:none}.tp.on{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h2{font-size:.9rem;color:var(--accent2);margin-bottom:16px;font-weight:700}
 .ms{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
-.mo{background:var(--bg);border:2px solid var(--border);border-radius:var(--r);padding:15px;cursor:pointer;transition:all .2s;text-align:center}
+.mo{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:15px;cursor:pointer;text-align:center}
 .mo.on{border-color:var(--accent);background:rgba(0,229,160,.06)}
-.mo .mi{font-size:1.6rem;margin-bottom:5px}
-.mo .mn{font-weight:600;font-size:.86rem}
+.mo .mn{font-weight:600;font-size:.86rem;margin-top:6px}
 .mo .md{color:var(--muted);font-size:.74rem;margin-top:3px}
 .fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px;margin-bottom:20px}
-.ff label{display:block;font-size:.74rem;color:var(--muted);margin-bottom:5px;font-weight:500}
-.ff input,.ff select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s}
+.ff label{display:block;font-size:.74rem;color:var(--muted);margin-bottom:5px}
+.ff input,.ff select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:.84rem;outline:none}
 .ff input:focus,.ff select:focus{border-color:var(--accent)}
-.ff select option{background:#1a1e2a}
-.btn{background:var(--accent);color:#0d0f14;border:none;border-radius:7px;padding:10px 24px;font-family:'Space Mono',monospace;font-size:.84rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s}
-.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn{background:var(--accent);color:#0d0f14;border:none;border-radius:7px;padding:10px 24px;font-size:.84rem;font-weight:700;cursor:pointer}
 .btn2{background:var(--accent2)}
-#rb{display:none;margin-top:20px;padding:20px;border-radius:var(--r);border:1px solid var(--border);animation:fi .4s ease}
+#rb{display:none;margin-top:20px;padding:20px;border-radius:12px;border:1px solid var(--border)}
 #rb.hi{background:rgba(0,229,160,.08);border-color:var(--accent)}
 #rb.lo{background:rgba(255,92,107,.08);border-color:var(--danger)}
 .rl{font-size:1.4rem;font-weight:700;margin-bottom:6px}
-.rp{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted)}
+.rp{font-size:.8rem;color:var(--muted)}
 .pbw{margin-top:10px;background:var(--border);border-radius:999px;height:7px;overflow:hidden}
-.pb{height:100%;border-radius:999px;background:var(--accent);transition:width .6s ease}
+.pb{height:100%;border-radius:999px;background:var(--accent);transition:width .6s}
 .mg{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:22px}
-.mc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:13px;text-align:center}
-.mc .mv{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:var(--accent)}
-.mc .ml{font-size:.68rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
-.cmt{font-family:'Space Mono',monospace;font-size:.76rem;color:var(--muted);margin-bottom:11px}
+.mc{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center}
+.mc .mv{font-size:1.3rem;font-weight:700;color:var(--accent)}
+.mc .ml{font-size:.68rem;color:var(--muted);margin-top:3px;text-transform:uppercase}
 .ct{border-collapse:collapse}
 .ct td,.ct th{width:76px;height:62px;text-align:center;font-size:.82rem;border:1px solid var(--border)}
-.ct th{background:var(--bg);color:var(--muted);font-size:.7rem;height:32px;font-family:'Space Mono',monospace}
-.vp{background:rgba(0,229,160,.15);color:var(--accent);font-weight:700;font-size:1rem}
-.vn{background:rgba(0,229,160,.10);color:var(--accent);font-weight:700;font-size:1rem}
-.fp2{background:rgba(255,92,107,.12);color:var(--danger);font-size:1rem}
-.fn2{background:rgba(255,92,107,.12);color:var(--danger);font-size:1rem}
-.rl2{width:86px;color:var(--muted);font-size:.7rem;font-family:'Space Mono',monospace}
+.ct th{background:var(--bg);color:var(--muted);font-size:.7rem;height:32px}
+.vp{background:rgba(0,229,160,.15);color:var(--accent);font-weight:700}
+.vn{background:rgba(0,229,160,.10);color:var(--accent);font-weight:700}
+.fp2{background:rgba(255,92,107,.12);color:var(--danger)}
+.fn2{background:rgba(255,92,107,.12);color:var(--danger)}
+.rl2{width:86px;color:var(--muted);font-size:.7rem}
 .cpt{width:100%;border-collapse:collapse}
 .cpt th,.cpt td{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.84rem;text-align:left}
-.cpt th{color:var(--muted);font-family:'Space Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px}
-.cpt td:not(:first-child){font-family:'Space Mono',monospace;color:var(--accent2)}
+.cpt th{color:var(--muted);font-size:.7rem;text-transform:uppercase}
+.cpt td:not(:first-child){color:var(--accent2)}
 .btr{color:var(--accent)!important;font-weight:700}
-.uz{border:2px dashed var(--border);border-radius:var(--r);padding:26px;text-align:center;color:var(--muted);cursor:pointer;transition:all .2s;margin-bottom:14px}
-.uz:hover{border-color:var(--accent);color:var(--text)}
-.uz input{display:none}
-#br2{display:none;animation:fi .4s ease}
-.chip{display:inline-block;background:rgba(79,138,255,.1);border:1px solid rgba(79,138,255,.3);color:var(--accent2);border-radius:999px;padding:3px 10px;font-size:.71rem;margin:2px}
-@media(max-width:640px){.mg{grid-template-columns:repeat(2,1fr)}.ms{grid-template-columns:1fr}header{padding:14px;flex-wrap:wrap}#app{padding:14px}}
+.uz{border:2px dashed var(--border);border-radius:12px;padding:26px;text-align:center;color:var(--muted);cursor:pointer;margin-bottom:14px}
+#br2{display:none}
 </style>
 </head>
 <body>
 <header>
-  <span style="font-size:2rem">&#x1F6B2;</span>
-  <div><h1>Bike Sharing Predictor</h1><p>UCI Dataset &mdash; Demanda diaria de bicicletas compartidas</p></div>
+  <div>
+    <h1>Bike Sharing Predictor</h1>
+    <p>UCI Dataset - Demanda diaria de bicicletas compartidas</p>
+  </div>
   <span class="badge" id="st">Cargando...</span>
 </header>
-<div id="loading"><div class="spin"></div><p style="color:var(--muted);font-size:.86rem">Cargando modelos...</p></div>
+<div id="loading"><div class="spin"></div><p style="color:var(--muted)">Cargando modelos...</p></div>
 <div id="app">
   <div class="tabs">
-    <button class="tbtn on" onclick="sw('ind',this)">&#127919; Pred. Individual</button>
-    <button class="tbtn" onclick="sw('bat',this)">&#128202; Pred. por Lotes</button>
-    <button class="tbtn" onclick="sw('cmp',this)">&#9889; Comparar</button>
+    <button class="tbtn on" onclick="sw('ind',this)">Prediccion Individual</button>
+    <button class="tbtn" onclick="sw('bat',this)">Prediccion por Lotes</button>
+    <button class="tbtn" onclick="sw('cmp',this)">Comparar Modelos</button>
   </div>
-
   <div id="tab-ind" class="tp on">
-    <div class="card"><h2>&#129302; Modelo</h2>
+    <div class="card"><h2>Seleccionar Modelo</h2>
       <div class="ms">
-        <div class="mo on" id="o-lr" onclick="sm('lr')"><div class="mi">&#128202;</div><div class="mn">Regresion Logistica</div><div class="md">Lineal, rapido, interpretable</div></div>
-        <div class="mo" id="o-nn" onclick="sm('nn')"><div class="mi">&#129504;</div><div class="mn">Red Neuronal MLP</div><div class="md">64-32 neuronas, ReLU, Adam</div></div>
+        <div class="mo on" id="o-lr" onclick="sm('lr')"><div class="mn">Regresion Logistica</div><div class="md">Lineal, rapido, interpretable</div></div>
+        <div class="mo" id="o-nn" onclick="sm('nn')"><div class="mn">Red Neuronal MLP</div><div class="md">64-32 neuronas, ReLU, Adam</div></div>
       </div>
     </div>
-    <div class="card"><h2>&#128203; Variables</h2><div class="fg" id="fg"></div><button class="btn" onclick="pred()">&#128302; Predecir</button></div>
+    <div class="card"><h2>Ingresar Variables</h2><div class="fg" id="fg"></div><button class="btn" onclick="pred()">Predecir Demanda</button></div>
     <div id="rb"><div class="rl" id="rl"></div><div class="rp" id="rp"></div><div class="pbw"><div class="pb" id="pb"></div></div></div>
   </div>
-
   <div id="tab-bat" class="tp">
-    <div class="card"><h2>&#129302; Modelo</h2>
+    <div class="card"><h2>Seleccionar Modelo</h2>
       <div class="ms">
-        <div class="mo on" id="b-lr" onclick="sbm('lr')"><div class="mi">&#128202;</div><div class="mn">Regresion Logistica</div><div class="md">Lineal clasico</div></div>
-        <div class="mo" id="b-nn" onclick="sbm('nn')"><div class="mi">&#129504;</div><div class="mn">Red Neuronal MLP</div><div class="md">Perceptron multicapa</div></div>
+        <div class="mo on" id="b-lr" onclick="sbm('lr')"><div class="mn">Regresion Logistica</div></div>
+        <div class="mo" id="b-nn" onclick="sbm('nn')"><div class="mn">Red Neuronal MLP</div></div>
       </div>
     </div>
-    <div class="card"><h2>&#128194; Dataset</h2>
+    <div class="card"><h2>Cargar Dataset</h2>
       <p style="color:var(--muted);font-size:.81rem;margin-bottom:13px">Sube day.csv del UCI Bike Sharing, o usa el conjunto de prueba precargado.</p>
-      <label class="uz" for="ci"><input type="file" id="ci" accept=".csv" onchange="hcsv(event)"><div style="font-size:1.7rem">&#128193;</div><div>Sube tu CSV aqui</div></label>
-      <button class="btn btn2" onclick="rbt()">&#128230; Usar datos de prueba</button>
+      <label class="uz" for="ci"><input type="file" id="ci" accept=".csv" onchange="hcsv(event)"><div>Sube tu CSV aqui</div></label>
+      <button class="btn btn2" onclick="rbt()">Usar datos de prueba</button>
     </div>
     <div id="br2">
-      <div class="card"><h2>&#128202; Metricas</h2><div class="mg" id="bm"></div></div>
-      <div class="card"><h2>&#11035; Matriz de Confusion</h2><p class="cmt">Filas = Clase Real | Columnas = Clase Predicha</p><table class="ct" id="ctbl"></table><div style="margin-top:12px;font-size:.78rem;color:var(--muted)"><span style="color:var(--accent)">&#9632;</span> VP/VN Correctos &nbsp; <span style="color:var(--danger)">&#9632;</span> FP/FN Errores</div></div>
+      <div class="card"><h2>Metricas de Desempeno</h2><div class="mg" id="bm"></div></div>
+      <div class="card"><h2>Matriz de Confusion</h2><p style="color:var(--muted);font-size:.76rem;margin-bottom:11px">Filas = Clase Real | Columnas = Clase Predicha</p><table class="ct" id="ctbl"></table></div>
     </div>
   </div>
-
   <div id="tab-cmp" class="tp">
-    <div class="card"><h2>&#9889; Comparacion &mdash; Conjunto de Prueba</h2>
-      <p style="color:var(--muted);font-size:.81rem;margin-bottom:16px">20% del dataset (146 muestras). <span style="color:var(--accent)">Verde</span> = mejor.</p>
+    <div class="card"><h2>Comparacion - Conjunto de Prueba (20%)</h2>
+      <p style="color:var(--muted);font-size:.81rem;margin-bottom:16px">Verde = mejor modelo en esa metrica.</p>
       <table class="cpt" id="ctab"></table>
-    </div>
-    <div class="card"><h2>&#8505;&#65039; Descripcion</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div><p style="font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:7px">REGRESION LOGISTICA</p><p style="color:var(--muted);font-size:.81rem;line-height:1.6">Clasificador lineal con funcion sigmoide. C=1.0, solver=lbfgs, max_iter=1000. Coeficientes interpretables como log-odds.</p><div style="margin-top:8px"><span class="chip">Lineal</span><span class="chip">Interpretable</span><span class="chip">Rapido</span></div></div>
-        <div><p style="font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:7px">RED NEURONAL MLP</p><p style="color:var(--muted);font-size:.81rem;line-height:1.6">Arquitectura 11-64-32-1. ReLU en capas ocultas, sigmoide en salida. Adam con early stopping (val 10%).</p><div style="margin-top:8px"><span class="chip">No-lineal</span><span class="chip">Adam</span><span class="chip">Early stopping</span></div></div>
-      </div>
     </div>
   </div>
 </div>
 <script>
-let D=null,sM='lr',bM='lr';
-fetch('models.json').then(r=>r.json()).then(d=>{D=d;document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';document.getElementById('st').textContent='Modelos listos';bF();bCT();}).catch(e=>{document.getElementById('loading').innerHTML='<p style="color:var(--danger)">Error: '+e.message+'</p>';});
-function sw(t,b){document.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('on'));document.getElementById('tab-'+t).classList.add('on');b.classList.add('on');}
+var D=null,sM='lr',bM='lr';
+fetch('models.json').then(function(r){return r.json();}).then(function(d){
+  D=d;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('st').textContent='Modelos listos';
+  bF();bCT();
+}).catch(function(e){
+  document.getElementById('loading').innerHTML='<p style="color:red">Error cargando modelos: '+e.message+'</p>';
+});
+function sw(t,b){document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tbtn').forEach(function(x){x.classList.remove('on');});document.getElementById('tab-'+t).classList.add('on');b.classList.add('on');}
 function sm(m){sM=m;document.getElementById('o-lr').classList.toggle('on',m==='lr');document.getElementById('o-nn').classList.toggle('on',m==='nn');document.getElementById('rb').style.display='none';}
 function sbm(m){bM=m;document.getElementById('b-lr').classList.toggle('on',m==='lr');document.getElementById('b-nn').classList.toggle('on',m==='nn');document.getElementById('br2').style.display='none';}
 function bF(){
-  const g=document.getElementById('fg');
-  const dv={season:3,yr:0,mnth:6,holiday:0,weekday:3,workingday:1,weathersit:1,temp:0.5,atemp:0.5,hum:0.5,windspeed:0.2};
-  const sl={season:[[1,'Primavera'],[2,'Verano'],[3,'Otono'],[4,'Invierno']],yr:[[0,'2011'],[1,'2012']],holiday:[[0,'No'],[1,'Si']],workingday:[[0,'No'],[1,'Si']],weathersit:[[1,'Despejado'],[2,'Nublado'],[3,'Lluvia ligera'],[4,'Lluvia fuerte']],weekday:[[0,'Dom'],[1,'Lun'],[2,'Mar'],[3,'Mie'],[4,'Jue'],[5,'Vie'],[6,'Sab']]};
-  D.features.forEach(f=>{
-    const d=document.createElement('div');d.className='ff';
-    if(sl[f]){const o=sl[f].map(([v,l])=>'<option value="'+v+'"'+(v==dv[f]?' selected':'')+'>'+l+'</option>').join('');d.innerHTML='<label>'+D.feature_labels[f]+'</label><select id="f_'+f+'">'+o+'</select>';}
-    else{const st=['temp','atemp','hum','windspeed'].includes(f)?'0.01':'1';const mn=f==='mnth'?1:0;const mx=f==='mnth'?12:1;d.innerHTML='<label>'+D.feature_labels[f]+'</label><input type="number" id="f_'+f+'" value="'+dv[f]+'" min="'+mn+'" max="'+mx+'" step="'+st+'">';}
+  var g=document.getElementById('fg');
+  var dv={season:3,yr:0,mnth:6,holiday:0,weekday:3,workingday:1,weathersit:1,temp:0.5,atemp:0.5,hum:0.5,windspeed:0.2};
+  var sl={season:[[1,'Primavera'],[2,'Verano'],[3,'Otono'],[4,'Invierno']],yr:[[0,'2011'],[1,'2012']],holiday:[[0,'No'],[1,'Si']],workingday:[[0,'No'],[1,'Si']],weathersit:[[1,'Despejado'],[2,'Nublado'],[3,'Lluvia ligera'],[4,'Lluvia fuerte']],weekday:[[0,'Dom'],[1,'Lun'],[2,'Mar'],[3,'Mie'],[4,'Jue'],[5,'Vie'],[6,'Sab']]};
+  D.features.forEach(function(f){
+    var d=document.createElement('div');d.className='ff';
+    if(sl[f]){
+      var o=sl[f].map(function(x){return '<option value="'+x[0]+'"'+(x[0]==dv[f]?' selected':'')+'>'+x[1]+'</option>';}).join('');
+      d.innerHTML='<label>'+D.feature_labels[f]+'</label><select id="f_'+f+'">'+o+'</select>';
+    } else {
+      var st=['temp','atemp','hum','windspeed'].indexOf(f)>=0?'0.01':'1';
+      var mn=f==='mnth'?1:0;var mx=f==='mnth'?12:1;
+      d.innerHTML='<label>'+D.feature_labels[f]+'</label><input type="number" id="f_'+f+'" value="'+dv[f]+'" min="'+mn+'" max="'+mx+'" step="'+st+'">';
+    }
     g.appendChild(d);
   });
 }
 function sig(x){return 1/(1+Math.exp(-x));}
-function relu(a){return a.map(v=>Math.max(0,v));}
-function sc(v){return v.map((x,i)=>(x-D.scaler.mean[i])/D.scaler.scale[i]);}
-function pLR(s){let l=D.lr_model.intercept;D.lr_model.coef.forEach((c,i)=>l+=c*s[i]);const p=sig(l);return{lbl:p>=.5?1:0,p1:p};}
-function pNN(s){let x=s.slice();D.nn_model.layers.forEach((ly,i)=>{const o=ly.biases.map((b,j)=>{let t=b;x.forEach((v,k)=>t+=v*ly.weights[k][j]);return t;});x=i<D.nn_model.layers.length-1?relu(o):o.map(sig);});return{lbl:x[0]>=.5?1:0,p1:x[0]};}
-function inf(raw,m){return m==='lr'?pLR(sc(raw)):pNN(sc(raw));}
+function relu(a){return a.map(function(v){return Math.max(0,v);});}
+function sc(v){return v.map(function(x,i){return (x-D.scaler.mean[i])/D.scaler.scale[i];});}
+function pLR(s){var l=D.lr_model.intercept;D.lr_model.coef.forEach(function(c,i){l+=c*s[i];});var p=sig(l);return {lbl:p>=0.5?1:0,p1:p};}
+function pNN(s){
+  var x=s.slice();
+  D.nn_model.layers.forEach(function(ly,i){
+    var o=ly.biases.map(function(b,j){var t=b;x.forEach(function(v,k){t+=v*ly.weights[k][j];});return t;});
+    x=i<D.nn_model.layers.length-1?relu(o):o.map(sig);
+  });
+  return {lbl:x[0]>=0.5?1:0,p1:x[0]};
+}
+function inf(raw,m){var s=sc(raw);return m==='lr'?pLR(s):pNN(s);}
 function pred(){
-  const raw=D.features.map(f=>parseFloat(document.getElementById('f_'+f).value));
-  const{lbl,p1}=inf(raw,sM);
-  const rb=document.getElementById('rb');rb.style.display='block';rb.className=lbl===1?'hi':'lo';
-  document.getElementById('rl').innerHTML=lbl===1?'&#x1F6B2; Alta Demanda':'&#x1F4C9; Baja Demanda';
-  const pct=(p1*100).toFixed(1);
+  var raw=D.features.map(function(f){return parseFloat(document.getElementById('f_'+f).value);});
+  var res=inf(raw,sM);
+  var rb=document.getElementById('rb');rb.style.display='block';rb.className=res.lbl===1?'hi':'lo';
+  document.getElementById('rl').textContent=res.lbl===1?'Alta Demanda':'Baja Demanda';
+  var pct=(res.p1*100).toFixed(1);
   document.getElementById('rp').textContent='P(alta demanda)='+pct+'% | '+(sM==='lr'?'Regresion Logistica':'Red Neuronal');
   document.getElementById('pb').style.width=pct+'%';
-  document.getElementById('pb').style.background=lbl===1?'var(--accent)':'var(--danger)';
+  document.getElementById('pb').style.background=res.lbl===1?'var(--accent)':'var(--danger)';
 }
 function rBatch(rows,lbls){
-  let tp=0,fp=0,fn=0,tn=0;const pr=[];
-  rows.forEach((r,i)=>{const{lbl,p1}=inf(r,bM);pr.push(p1);const t=lbls[i];if(lbl===1&&t===1)tp++;else if(lbl===1&&t===0)fp++;else if(lbl===0&&t===1)fn++;else tn++;});
-  const n=rows.length,ac=(tp+tn)/n,pc=tp/(tp+fp)||0,rc=tp/(tp+fn)||0,f1=2*pc*rc/(pc+rc)||0;
-  const so=lbls.map((t,i)=>({t,p:pr[i]})).sort((a,b)=>b.p-a.p);
-  let auc=0,pf=0,pt=0,P=lbls.filter(v=>v).length,N=n-P,t2=0,f2=0;
-  so.forEach(({t})=>{if(t)t2++;else f2++;const tr=t2/P,fr=f2/N;auc+=(fr-pf)*((tr+pt)/2);pf=fr;pt=tr;});
-  sB({tp,fp,fn,tn},{ac,pc,rc,f1,auc},n);
+  var tp=0,fp=0,fn=0,tn=0,pr=[];
+  rows.forEach(function(r,i){var res=inf(r,bM);pr.push(res.p1);var t=lbls[i];if(res.lbl===1&&t===1)tp++;else if(res.lbl===1&&t===0)fp++;else if(res.lbl===0&&t===1)fn++;else tn++;});
+  var n=rows.length,ac=(tp+tn)/n,pc=tp/(tp+fp)||0,rc=tp/(tp+fn)||0,f1=2*pc*rc/(pc+rc)||0;
+  var so=lbls.map(function(t,i){return {t:t,p:pr[i]};}).sort(function(a,b){return b.p-a.p;});
+  var auc=0,pf=0,pt=0,P=lbls.filter(function(v){return v;}).length,N=n-P,t2=0,f2=0;
+  so.forEach(function(x){if(x.t)t2++;else f2++;var tr=t2/P,fr=f2/N;auc+=(fr-pf)*((tr+pt)/2);pf=fr;pt=tr;});
+  sB({tp:tp,fp:fp,fn:fn,tn:tn},{ac:ac,pc:pc,rc:rc,f1:f1,auc:auc},n);
 }
-function rbt(){const rows=D.test_data.map(d=>D.features.map(f=>d[f]));const lbls=D.test_data.map(d=>d.true_label);rBatch(rows,lbls);}
+function rbt(){var rows=D.test_data.map(function(d){return D.features.map(function(f){return d[f];});});var lbls=D.test_data.map(function(d){return d.true_label;});rBatch(rows,lbls);}
 function hcsv(e){
-  const file=e.target.files[0];if(!file)return;
-  const r=new FileReader();r.onload=ev=>{
-    const lines=ev.target.result.trim().split('
-');const hdr=lines[0].split(',').map(h=>h.trim());
-    const rows=[],lbls=[];
-    for(let i=1;i<lines.length;i++){const vs=lines[i].split(',').map(v=>parseFloat(v.trim()));const o={};hdr.forEach((h,j)=>o[h]=vs[j]);if(isNaN(o.cnt))continue;rows.push(D.features.map(f=>o[f]||0));lbls.push(o.cnt>D.mediana_cnt?1:0);}
+  var file=e.target.files[0];if(!file)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    var lines=ev.target.result.trim().split('
+');var hdr=lines[0].split(',').map(function(h){return h.trim();});
+    var rows=[],lbls=[];
+    for(var i=1;i<lines.length;i++){var vs=lines[i].split(',').map(function(v){return parseFloat(v.trim());});var o={};hdr.forEach(function(h,j){o[h]=vs[j];});if(isNaN(o.cnt))continue;rows.push(D.features.map(function(f){return o[f]||0;}));lbls.push(o.cnt>D.mediana_cnt?1:0);}
     if(!rows.length){alert('Sin filas validas');return;}rBatch(rows,lbls);
   };r.readAsText(file);
 }
 function sB(cm,m,n){
-  const br=document.getElementById('br2');br.style.display='block';
-  document.getElementById('bm').innerHTML=[['Accuracy',(m.ac*100).toFixed(1)+'%'],['Precision',(m.pc*100).toFixed(1)+'%'],['Recall',(m.rc*100).toFixed(1)+'%'],['F1-Score',(m.f1*100).toFixed(1)+'%'],['ROC-AUC',m.auc.toFixed(4)]].map(([l,v])=>'<div class="mc"><div class="mv">'+v+'</div><div class="ml">'+l+'</div></div>').join('');
-  document.getElementById('ctbl').innerHTML='<tr><th></th><th>Pred Baja</th><th>Pred Alta</th></tr><tr><td class="rl2">Real: Baja</td><td class="vn"><b>'+cm.tn+'</b><br><small>VN</small></td><td class="fp2"><b>'+cm.fp+'</b><br><small>FP</small></td></tr><tr><td class="rl2">Real: Alta</td><td class="fn2"><b>'+cm.fn+'</b><br><small>FN</small></td><td class="vp"><b>'+cm.tp+'</b><br><small>VP</small></td></tr>';
+  var br=document.getElementById('br2');br.style.display='block';
+  document.getElementById('bm').innerHTML=[['Accuracy',(m.ac*100).toFixed(1)+'%'],['Precision',(m.pc*100).toFixed(1)+'%'],['Recall',(m.rc*100).toFixed(1)+'%'],['F1-Score',(m.f1*100).toFixed(1)+'%'],['ROC-AUC',m.auc.toFixed(4)]].map(function(x){return '<div class="mc"><div class="mv">'+x[1]+'</div><div class="ml">'+x[0]+'</div></div>';}).join('');
+  document.getElementById('ctbl').innerHTML='<tr><th></th><th>Pred Baja</th><th>Pred Alta</th></tr><tr><td class="rl2">Real: Baja</td><td class="vn"><b>'+cm.tn+'</b><br>VN</td><td class="fp2"><b>'+cm.fp+'</b><br>FP</td></tr><tr><td class="rl2">Real: Alta</td><td class="fn2"><b>'+cm.fn+'</b><br>FN</td><td class="vp"><b>'+cm.tp+'</b><br>VP</td></tr>';
   br.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function bCT(){
-  const{lr_metrics:lr,nn_metrics:nn}=D;
-  const rows=[['Accuracy',lr.accuracy,nn.accuracy],['Precision',lr.precision,nn.precision],['Recall',lr.recall,nn.recall],['F1-Score',lr.f1,nn.f1],['ROC-AUC',lr.roc_auc,nn.roc_auc]];
-  document.getElementById('ctab').innerHTML='<thead><tr><th>Metrica</th><th>Regresion Logistica</th><th>Red Neuronal</th></tr></thead><tbody>'+rows.map(([m,lv,nv])=>'<tr><td style="color:var(--text);font-weight:500">'+m+'</td><td class="'+(lv>=nv?'btr':'')+'">'+(lv*100).toFixed(2)+'%</td><td class="'+(nv>lv?'btr':'')+'">'+(nv*100).toFixed(2)+'%</td></tr>').join('')+'</tbody>';
+  var lr=D.lr_metrics,nn=D.nn_metrics;
+  var rows=[['Accuracy',lr.accuracy,nn.accuracy],['Precision',lr.precision,nn.precision],['Recall',lr.recall,nn.recall],['F1-Score',lr.f1,nn.f1],['ROC-AUC',lr.roc_auc,nn.roc_auc]];
+  document.getElementById('ctab').innerHTML='<thead><tr><th>Metrica</th><th>Regresion Logistica</th><th>Red Neuronal</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td style="color:var(--text);font-weight:500">'+r[0]+'</td><td class="'+(r[1]>=r[2]?'btr':'')+'">'+(r[1]*100).toFixed(2)+'%</td><td class="'+(r[2]>r[1]?'btr':'')+'">'+(r[2]*100).toFixed(2)+'%</td></tr>';}).join('')+'</tbody>';
 }
 </script>
 </body>
